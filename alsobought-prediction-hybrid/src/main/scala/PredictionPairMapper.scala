@@ -24,9 +24,9 @@ class PredictionPairMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
             break
           }
           val pair         = new IntPair(new IntWritable(tokens(token).toInt), new IntWritable(tokens(nextToken).toInt))
-          val pairAsterick = new IntPair(new IntWritable(tokens(token).toInt), asterick)
+//          val pairAsterick = new IntPair(new IntWritable(tokens(token).toInt), asterick)
           context.write(pair, one)
-          context.write(pairAsterick, one)
+//          context.write(pairAsterick, one)
         }
       }
     }
