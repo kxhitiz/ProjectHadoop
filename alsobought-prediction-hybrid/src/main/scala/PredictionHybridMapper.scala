@@ -3,14 +3,9 @@ import org.apache.hadoop.mapreduce.Mapper
 import scala.util.control.Breaks._
 
 /**
- * This class performs the map operation, translating raw input into the key-value
- * pairs we will feed into our reduce operation.
- * @author prayagupd
- * @date 05-11-2015
+ * Created by kxhitiz on 5/12/15.
  */
-
-
-class PredictionPairMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
+class PredictionHybridMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
   val one = new DoubleWritable(1.0)
   val asterick = new IntWritable(-1)
 
@@ -24,12 +19,11 @@ class PredictionPairMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
             break
           }
           val pair         = new IntPair(new IntWritable(tokens(token).toInt), new IntWritable(tokens(nextToken).toInt))
-//          val pairAsterick = new IntPair(new IntWritable(tokens(token).toInt), asterick)
           context.write(pair, one)
-//          context.write(pairAsterick, one)
         }
       }
     }
   }
 }
+
 
