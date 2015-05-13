@@ -9,11 +9,11 @@ import scala.collection.mutable
 
 class PredictionHybridReducer extends Reducer[IntPair,DoubleWritable, IntWritable, Text] {
 
-  var map = scala.collection.mutable.Map[IntWritable, scala.collection.mutable.ResizableArray[IntPair]]()
+  var map = scala.collection.Map[IntWritable, scala.collection.mutable.ResizableArray[IntPair]]()
   var sum : Double = 0.0
-  var stripe = scala.collection.mutable.Map[IntWritable, Double]()
+  val stripe = scala.collection.mutable.Map[String, Double]()
   var bufferKey : IntWritable = null
-  var prevValue : IntWritable = new IntWritable(0)
+  var prevValue : Int = 0
 
   override
 
@@ -21,44 +21,38 @@ class PredictionHybridReducer extends Reducer[IntPair,DoubleWritable, IntWritabl
   // output: ( 1, [ (2, 2/3), (4, 3/3) ] )
   def reduce(key:IntPair, values:java.lang.Iterable[DoubleWritable], context:Reducer[IntPair,DoubleWritable,IntWritable,Text]#Context) = {
 
-
-//    if (bufferKey != null ) {
-//      context.write(key.getFirst(), new Text(bufferKey.toString()))
-//    }
-
-    if (bufferKey == null) {
-//      context.write(key.getFirst(), new Text("Initial"))
-      bufferKey = key.getFirst()
+    if (prevValue == 0) {
+      prevValue = key.getFirst().get()
     }
-    else if (key.getFirst() != bufferKey) {
-//      context.write(key.getFirst(), new Text("Not Equal"))
-
-//      stripe = divideStripeBySum(stripe, sum)
-
-      context.write(bufferKey, new Text(stripe.toString()) )
-
+    else if (!key.getFirst().get().equals(prevValue)) {
+//       println(s"next reducer ${prevValue} == ${key.getFirst().get()}")
+       stripe.foreach{ case (k : String, v : Double) =>
+        stripe += k -> v / sum
+      }
+      context.write(new IntWritable(prevValue.toInt), new Text(stripe.toString().replaceAll("Map", "")) )
       stripe.clear()
-      bufferKey = key.getFirst()
+      prevValue = key.getFirst().get()
       sum = 0.0
     }
 
-    val thisVal = key.getSecond()
-    val value = stripe.getOrDefault(thisVal, 0)
+    val neighourKey = key.getSecond()
+    val value = stripe.getOrDefault(neighourKey, 0)
 
     val partialSum = values.foldLeft(0.0) {(state, elem) => state + elem.get}
     sum += partialSum
 
-    if (value == 0) {
-      context.write(key.getFirst(), new Text("value o"))
-      stripe.put(thisVal, partialSum)
-    }
-    else {
-      context.write(key.getFirst(), new Text("value else"))
-      stripe.remove(thisVal)
-      stripe.put(thisVal, value + partialSum)
-    }
-
-    context.write(key.getFirst(), new Text(stripe.toString() + ':' + prevValue.toString))
-    prevValue = key.getFirst()
+//    println(s"adding (${prevValue}, (${neighourKey}, ${value+partialSum}))")
+    stripe += neighourKey.toString -> (value + partialSum)
+//    stripe.foreach{ case (k : String, v : Double) =>
+//      println(s"    || (${k}, ${v})")
+//    }
   }
+
+  override def cleanup(context:Reducer[IntPair,DoubleWritable,IntWritable,Text]#Context): Unit = {
+    stripe.foreach{ case (k : String, v : Double) =>
+      stripe += k -> v / sum
+    }
+    context.write(new IntWritable(prevValue.toInt), new Text(stripe.toString().replaceAll("Map", "")) )
+  }
+
 }
