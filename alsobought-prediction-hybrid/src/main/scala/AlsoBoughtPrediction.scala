@@ -24,16 +24,16 @@ object AlsoBoughtPrediction {
       return 2
     }
     val job = new Job(conf, "People also bought suggestion")
-    job.setJarByClass(classOf[PredictionPairMapper])
+    job.setJarByClass(classOf[PredictionHybridMapper])
 
     //mappers/reducers
-    job.setMapperClass(classOf[PredictionPairMapper])
+    job.setMapperClass(classOf[PredictionHybridMapper])
     job.setOutputKeyClass(classOf[IntPair]) //can throw RTException
     job.setOutputValueClass(classOf[DoubleWritable]) //can throw RTException
 
     //reducer
     //job.setCombinerClass(classOf[PredictionPairReducer])
-    job.setReducerClass(classOf[PredictionPairReducer])
+    job.setReducerClass(classOf[PredictionHybridReducer])
     job.setOutputKeyClass(classOf[IntPair]) //can throw RTException
     job.setOutputValueClass(classOf[DoubleWritable]) //can throw RTException
 

@@ -7,7 +7,7 @@ import scala.util.control.Breaks._
  */
 class PredictionHybridMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
   val one = new DoubleWritable(1.0)
-  val asterick = new IntWritable(-1)
+//  val asterick = new IntWritable(-1)
 
   override
   def map(key:Object, value:Text, context:Mapper[Object,Text,IntPair,DoubleWritable]#Context) = {
