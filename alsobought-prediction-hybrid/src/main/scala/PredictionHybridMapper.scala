@@ -7,7 +7,6 @@ import scala.util.control.Breaks._
  */
 class PredictionHybridMapper extends Mapper[Object,Text,IntPair,DoubleWritable] {
   val one = new DoubleWritable(1.0)
-  val asterick = new IntWritable(-1)
 
   override
   def map(key:Object, value:Text, context:Mapper[Object,Text,IntPair,DoubleWritable]#Context) = {
@@ -19,10 +18,7 @@ class PredictionHybridMapper extends Mapper[Object,Text,IntPair,DoubleWritable] 
             break
           }
           val pair         = new IntPair(new IntWritable(tokens(token).toInt), new IntWritable(tokens(nextToken).toInt))
-//          val pairAsterick = new IntPair(new IntWritable(tokens(token).toInt), asterick)
           context.write(pair, one)
-//          println(s"reducer ${key}")
-//          context.write(pairAsterick, one)
         }
       }
     }
