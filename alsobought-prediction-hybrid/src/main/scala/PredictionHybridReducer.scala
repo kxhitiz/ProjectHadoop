@@ -24,7 +24,7 @@ class PredictionHybridReducer extends Reducer[IntPair,DoubleWritable, IntWritabl
        stripe.foreach{ case (k : String, v : Double) =>
         stripe += k -> v / sum
       }
-      context.write(new IntWritable(prevValue.toInt), new Text(stripe.toString().replaceAll("Map", "")) )
+      context.write(new IntWritable(prevValue.toInt), formatStripe(stripe) )
       stripe.clear()
       prevValue = key.getFirst().get()
       sum = 0.0
@@ -45,5 +45,10 @@ class PredictionHybridReducer extends Reducer[IntPair,DoubleWritable, IntWritabl
     }
     context.write(new IntWritable(prevValue.toInt), new Text(stripe.toString().replaceAll("Map", "")) )
   }
+
+  def formatStripe(stripe : scala.collection.mutable.Map[String, Double]): Text = {
+    new Text(stripe.toString().replaceAll("Map", ""))
+  }
+
 
 }
